@@ -50,7 +50,3 @@ yarn start
 ---
 
 Feito por [Jonathan Oliveira](https://github.com/johnoliveira06) 😊
-
-```
-
-```
