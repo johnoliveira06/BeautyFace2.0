@@ -1,7 +1,18 @@
 import React from 'react';
+import { useState, useEffect } from 'react';
 import "../styles/home.css"
 
 const Home = () => {
+
+  const [products, setProducts] = useState([]);
+
+  useEffect(() => {
+    fetch('http://localhost:8000/products')
+      .then(response => response.json())
+      .then(data => setProducts(data))
+      .catch(error => console.error('Erro ao buscar produtos:', error));
+  }, []);
+
   return (
     <>
     <div>
@@ -42,9 +53,25 @@ const Home = () => {
       <img src="./assets/images/blackf2.png" alt="Banner" />
     </section>
 
-	</main>
+      <section id='home'>
+      <div className="products-info">
+          <h2>PROMOÇÃO</h2>
+          <p>9 produtos</p>
+        </div>
+      <div className="product-container">
+      {products.map(product => (
+        <div className="product-card">
+        <img src={`./assets/images/${product.imagem}`} alt="Product Name" className="product-image"/>
+        <h3 className="product-name">{product.nome}</h3>
+        {/* <span className="original-price">$99.99</span> */}
+        <span className="product-price">R$ {product.preco}</span>
+        <button className="add-to-cart-button">Adicionar ao carrinho</button>
+      </div>
+          ))}
+ </div>
+      </section>
 
-  //Renderizar produtos aqui
+	</main>
     </>
   );
 }

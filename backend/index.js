@@ -18,9 +18,9 @@ const db = mysql.createConnection({
 });
 console.log("Conectado ao BD!");
 
-app.get("/test", async (req, res) => {
+app.get("/products", async (req, res) => {
   try {
-    db.query("SELECT * FROM users", (err, rows) => {
+    db.query("SELECT * FROM products", (err, rows) => {
       if (err) throw err;
       res.json(rows);
     });
