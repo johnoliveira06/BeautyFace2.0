@@ -1,0 +1,180 @@
+@import url("https://fonts.googleapis.com/css?family=Comfortaa|Open+Sans:300,400,600,700");
+
+* {
+  padding: 0;
+  margin: 0;
+  font-family: "Open Sans", sans-serif;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+#header {
+  width: 100%;
+  padding: 10px 40px;
+  border-bottom: 1px solid #e5e5e5;
+  background-color: white;
+  position: relative;
+  top: 0;
+  transition: all 0.25s ease;
+  z-index: 2;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+#header-img {
+  height: 100px;
+}
+
+@media (max-width: 330px) {
+  #header-img {
+    display: none;
+  }
+}
+
+.home-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #101920;
+  margin-left: 50px;
+}
+
+@media (max-width: 600px) {
+  .home-title {
+    display: none;
+  }
+}
+
+.user-details:hover {
+  color: #101920;
+  border-bottom: 2px solid #101920;
+  cursor: pointer;
+}
+
+#nav-bar {
+  padding: 15px 15px 0 15px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+#nav-bar ul {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin: 0 auto;
+}
+
+@media (max-width: 600px) {
+  #nav-bar ul {
+    margin: unset;
+    display: unset;
+    position: relative;
+    right: 30px;
+  }
+}
+
+#nav-bar li {
+  list-style-type: none;
+}
+
+#nav-bar li a {
+  margin: 0 15px;
+  padding: 10px 5px 15px 5px;
+  color: #828282;
+  text-transform: uppercase;
+  letter-spacing: 0.05rem;
+  font-size: 0.8rem;
+}
+
+#nav-bar li a:hover {
+  color: #eb0028;
+  border-bottom: 2px solid #eb0028;
+}
+
+@keyframes buttonEffect {
+  0% {
+    width: 0px;
+  }
+  100% {
+    width: 100%;
+  }
+}
+
+@keyframes buttonEffectRemoval {
+  0% {
+    width: 100%;
+  }
+  100% {
+    width: 0px;
+  }
+}
+
+@media (max-width: 1000px) {
+  #nav-bar li a {
+    padding-bottom: 0px;
+  }
+}
+
+.custom-link-content {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: #101920;
+}
+
+.custom-link-icon {
+  width: 35px;
+  height: 35px;
+  margin-right: 10px;
+}
+
+.custom-link-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.custom-link-text h6 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.custom-link-text span {
+  margin: 0;
+  font-size: 12px;
+  color: #828282;
+}
+
+/* ===========Estilização abaixo da navbar============== */
+
+.banner {
+  text-align: center;
+}
+
+.banner img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+  z-index: 1;
+}
+/* 
+	dark: 101920;
+	#676767
+	middle: 828282;
+	light: E5E5E5;
+
+	middle-grey: #828282;
+	light: #B6B6B6;
+	superlight: ##E5E5E5;
+	red: #EB0028;
+	lilac: #BE9AE1;
+	purple: #4F499A;
+	dark-purple: #1F2566;
+	light-blue: #00ABDC;
+*/
