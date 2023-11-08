@@ -15,19 +15,41 @@ const Login = () => {
     senha:''
 })
 
+const [valuesLogin, setValuesLogin] = useState({
+  email:'',
+  senha:''
+})
+
 const handleSignUp = (e) =>{
     e.preventDefault();
     axios.post('http://localhost:8000/register', values)
     .then(res => {
         if(res.data.Status === "Sucesso") {
-            navigate('/login')
+            alert("Cadastro realizado com sucesso!")
+            location.reload()
         }else{
             alert(res.data.Error);
         }
             
         })
-    // .then(err =>console.log(err));
+    .then(err =>console.log(err));
 }
+
+const handleSignIn = (e) =>{
+  e.preventDefault();
+  axios.post('http://localhost:8000/login', valuesLogin)
+  .then(res => {
+      if(res.data.Status === "Sucesso") {
+          alert("Login realizado com sucesso!")
+          navigate('/')
+      }else{
+          alert(res.data.Error);
+      }
+          
+      })
+  .then(err =>console.log(err));
+}
+
 
 
   const toggleForm = () => {
@@ -59,7 +81,7 @@ const handleSignUp = (e) =>{
         </form>
       </div>
       <div className="form-container sign-in">
-        <form>
+        <form onSubmit={handleSignIn}>
         <h1>{isSignUp ? 'Cadastrar' : 'Login'}</h1>
           <div className="social-icons">
           <span>Fazer login com:</span>
@@ -72,10 +94,10 @@ const handleSignUp = (e) =>{
             </a>
           </div>
           <span>ou use seu email</span>
-          <input type="email" placeholder="Email"/>
-          <input type="password" placeholder="Senha"/>
+          <input type="email" name='email' placeholder="Email" onChange={ e => setValuesLogin({...valuesLogin, email: e.target.value})}/>
+          <input type="password" name='senha' placeholder="Senha" onChange={ e => setValuesLogin({...valuesLogin, senha: e.target.value})}/>
           <a href="#" className='forgot-password'>Esqueceu sua senha?</a>
-          <button>Entrar</button>
+          <button type='submit'>Entrar</button>
         </form>
       </div>
       <div className="toggle-container">
