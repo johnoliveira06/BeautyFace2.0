@@ -1,10 +1,34 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
+import axios from "axios"
+import { useNavigate } from "react-router-dom"
 import "../styles/login.css"
 
 const Login = () => {
 
+  const navigate = useNavigate()
   const [isSignUp, setIsSignUp] = useState(false);
+
+  const [values, setValues] = useState({
+    nome:'',
+    email:'',
+    senha:''
+})
+
+const handleSignUp = (e) =>{
+    e.preventDefault();
+    axios.post('http://localhost:8000/register', values)
+    .then(res => {
+        if(res.data.Status === "Sucesso") {
+            navigate('/login')
+        }else{
+            alert(res.data.Error);
+        }
+            
+        })
+    // .then(err =>console.log(err));
+}
+
 
   const toggleForm = () => {
     setIsSignUp(!isSignUp);
@@ -15,7 +39,7 @@ const Login = () => {
     <>
     <div className={`container ${isSignUp ? 'active' : ''}`} id="container">
       <div className="form-container sign-up">
-        <form>
+        <form onSubmit={handleSignUp}>
         <h1>{isSignUp ? 'Cadastrar' : 'Login'}</h1>
           <div className="social-icons">
             <span>Cadastrar com:</span>
@@ -28,10 +52,10 @@ const Login = () => {
           </a>
           </div>
           <span>ou use seu email</span>
-          <input type="text" placeholder="Nome"/>
-          <input type="email" placeholder="Email"/>
-          <input type="password" placeholder="Senha"/>
-          <button>Criar conta</button>
+          <input type="text" name='nome' placeholder="Nome" onChange={ e => setValues({...values, nome: e.target.value})}/>
+          <input type="email" name='email' placeholder="Email" onChange={ e => setValues({...values, email: e.target.value})}/>
+          <input type="password" name='senha' placeholder="Senha" onChange={ e => setValues({...values, senha: e.target.value})}/>
+          <button type='submit'>Criar conta</button>
         </form>
       </div>
       <div className="form-container sign-in">
