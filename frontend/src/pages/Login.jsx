@@ -2,11 +2,14 @@ import React from 'react';
 import { useState, useEffect } from 'react';
 import axios from "axios"
 import { useNavigate } from "react-router-dom"
+import {auth, provider} from "../components/config"
+import {signInWithPopup} from "firebase/auth"
 import "../styles/login.css"
 
 const Login = () => {
-
+  
   const navigate = useNavigate()
+  
   const [isSignUp, setIsSignUp] = useState(false);
 
   const [values, setValues] = useState({
@@ -19,6 +22,8 @@ const [valuesLogin, setValuesLogin] = useState({
   email:'',
   senha:''
 })
+
+const [valuesGoogle, setValuesGoogle] = useState('')
 
 const handleSignUp = (e) =>{
     e.preventDefault();
@@ -50,12 +55,21 @@ const handleSignIn = (e) =>{
   .then(err =>console.log(err));
 }
 
+const handleGoogleLogin =  () =>{
+  signInWithPopup(auth, provider).then((data)=>{
+    setValuesGoogle({
+      email: data.user.email,
+      nome: data.user.displayName
+    })
+    localStorage.setItem("email", data.user.email)
+    localStorage.setItem("nome", data.user.displayName);
+    navigate("/")
+  })
+}
 
-
-  const toggleForm = () => {
-    setIsSignUp(!isSignUp);
-  };
-
+const toggleForm = () => {
+  setIsSignUp(!isSignUp);
+};
 
   return (
     <>
@@ -65,7 +79,7 @@ const handleSignIn = (e) =>{
         <h1>{isSignUp ? 'Cadastrar' : 'Login'}</h1>
           <div className="social-icons">
             <span>Cadastrar com:</span>
-            <a href="#" className="icons">
+            <a href="#" className="icons" onClick={handleGoogleLogin}>
               <img
             src="../assets/icons/google.svg"
             alt="Google"
@@ -85,7 +99,7 @@ const handleSignIn = (e) =>{
         <h1>{isSignUp ? 'Cadastrar' : 'Login'}</h1>
           <div className="social-icons">
           <span>Fazer login com:</span>
-          <a href="#" className="icons">
+          <a href="#" className="icons" onClick={handleGoogleLogin}>
           <img
             src="../assets/icons/google.svg"
             alt="Google"

@@ -6,6 +6,30 @@ const Home = () => {
 
   const [products, setProducts] = useState([]);
 
+  const [userName, setUserName] = useState('');
+
+  useEffect(() => {
+    const storedName = localStorage.getItem('nome');
+
+    if (storedName) {
+      setUserName(storedName);
+    }
+  }, []);
+
+  const logout = () => {
+    localStorage.clear();
+    setUserName('');
+    window.location.reload();
+  };
+  
+  const handleClick = () => {
+    if (userName) {
+      logout();
+    } else {
+      window.location.href = '/login';
+    }
+  };
+
   useEffect(() => {
     fetch('http://localhost:8000/products')
       .then(response => response.json())
@@ -20,11 +44,11 @@ const Home = () => {
     <img
             src="../assets/icons/logo.jpg"
             alt="Logo"
-            id="header-img"
+            className="header-img"
           />
 		<h1 className='home-title'>Beauty Face</h1>
-		<div class="user-details">
-      <a href="/login">
+		<div className="user-details">
+      <a href="#" onClick={handleClick}>
         <div className="custom-link-content">
           <img
             src="../assets/icons/user.svg"
@@ -32,23 +56,27 @@ const Home = () => {
             className="custom-link-icon"
           />
           <div className="custom-link-text">
-            <h6>Minha conta</h6>
-            <span>Entre ou cadastre-se</span>
+          <h6>{userName || 'Minha conta'}</h6>
+                  {userName ? (
+                    <span onClick={logout}>Fazer logout</span>
+                  ) : (
+                    <span>Entre ou cadastre-se</span>
+                  )}
           </div>
         </div>
       </a>
 		</div>
 		<nav id="nav-bar">
 			<ul>
-				<li><a class="nav-link" href="#home">Home</a></li>
-				<li><a class="nav-link" href="#about">Sobre nós</a></li>
-				<li><a class="nav-link" href="#contact">Contato</a></li>
+				<li><a className="nav-link" href="#home">Home</a></li>
+				<li><a className="nav-link" href="#about">Sobre nós</a></li>
+				<li><a className="nav-link" href="#contact">Contato</a></li>
 			</ul>
 		</nav>
 	</header>
   </div>
 	<main> 
-    <section class="banner">
+    <section className="banner">
       
       <img src="./assets/images/blackf2.png" alt="Banner" />
     </section>

@@ -1,0 +1,8 @@
+frontend/.env
+.DS_Store
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+frontend/node_modules
+backend/node_modules

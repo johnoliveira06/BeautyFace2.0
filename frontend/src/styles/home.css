@@ -26,12 +26,12 @@ a {
   flex-wrap: wrap;
 }
 
-#header-img {
+.header-img {
   height: 100px;
 }
 
 @media (max-width: 330px) {
-  #header-img {
+  .header-img {
     display: none;
   }
 }
