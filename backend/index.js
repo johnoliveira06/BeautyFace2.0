@@ -2,15 +2,22 @@ import express from "express";
 import mysql from "mysql";
 import bodyParser from "body-parser";
 import cors from "cors";
-import bcrypt from "bcrypt"
+import bcrypt from "bcryptjs"
+import jwt from "jsonwebtoken";
+import cookieParser from "cookie-parser";
 
-const salt = 10;
+const salt = await bcrypt.genSalt(10);
 
 const app = express();
 
 app.use(express.json());
 app.use(bodyParser.json());
-app.use(cors());
+app.use(cors({
+  origin: ["http://localhost:5173"],
+  methods: ["POST", "GET"],
+  credentials: true
+}));
+app.use(cookieParser());
 
 //MySQL
 const db = mysql.createConnection({
@@ -20,6 +27,24 @@ const db = mysql.createConnection({
   database: "beautyface",
 });
 console.log("Conectado ao BD!");
+
+const verifyUser = (req, res, next) => {
+  const token = req.cookies.token
+  if(!token){
+    return res.json({Error: "Você não está logado"})
+  }
+  else{
+    jwt.verify(token, "jwt-secret-key", (err, decoded) =>{
+      if(err){
+        return res.json({Error: "Token errado"})
+      }
+      else{
+        req.name = decoded.name;
+        next();
+      }
+    })
+  }
+}
 
 app.get("/products", async (req, res) => {
   try {
@@ -39,9 +64,9 @@ app.post("/register", (req, res) => {
     const values = [req.body.nome, req.body.email, hash];
     db.query(sql, [values], (err, result) => {
       if (err) return res.json({ Error: "Erro ao inserir os registros" });
-      return res.json({ Status: "Sucesso" });
+      return res.json({ Status: "Sucesso" }); 
     });
-    console.log(values);
+    // console.log(values);
   })
 });
 
@@ -53,6 +78,9 @@ app.post("/login", (req, res) => {
       bcrypt.compare(req.body.senha.toString(), data[0].senha, (err, response)=>{
             if (err) return res.json("Erro ao comparar senha");
             if(response){
+              const name = data[0].nome
+              const token = jwt.sign({name}, "jwt-secret-key", {expiresIn: '1d'})
+              res.cookie('token', token);
               return res.json({ Status: "Sucesso" });
             } else {
               return res.json({ Error: "Senha incorreta" });
@@ -64,6 +92,15 @@ app.post("/login", (req, res) => {
     }
   })
 });
+
+app.get('/', verifyUser, (req, res) => {
+  return res.json({Status: "Sucesso", name: req.name});
+})
+
+app.get('/logout', (req, res)=>{
+  res.clearCookie('token');
+  return res.json({Status: "Sucesso"})
+})
 
 app.listen(8000, () => {
   console.log("Conectado!");

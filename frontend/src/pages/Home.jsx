@@ -1,5 +1,6 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
+import axios from "axios"
 import "../styles/home.css"
 
 const Home = () => {
@@ -7,6 +8,25 @@ const Home = () => {
   const [products, setProducts] = useState([]);
 
   const [userName, setUserName] = useState('');
+
+  const [auth, setAuth] = useState(false);
+
+  const [message, setMessage] = useState(false)
+
+  useEffect(()=>{
+    axios.get('http://localhost:8000/')
+    .then(res => {
+        if(res.data.Status === "Sucesso") {
+            setAuth(true)
+            setUserName(res.data.name)
+        }else{
+            setAuth(false)
+            setMessage(res.data.Error)
+        }
+            
+    })
+    .then(err =>console.log(err));
+  }, [])
 
   useEffect(() => {
     const storedName = localStorage.getItem('nome');
@@ -17,10 +37,21 @@ const Home = () => {
   }, []);
 
   const logout = () => {
-    localStorage.clear();
-    setUserName('');
-    window.location.reload();
+    // localStorage.clear();
+    // setUserName('');
+    // window.location.reload();
+    axios.get("http://localhost:8000/logout")
+    .then(res => {
+      location.reload(true)
+    }).catch(err => console.log(err));
   };
+
+  // const handleLogout = () => {
+  //   axios.get("http://localhost:8000/logout")
+  //   .then(res => {
+  //     location.reload(true)
+  //   }).catch(err => console.log(err));
+  // }
   
   const handleClick = () => {
     if (userName) {
@@ -58,7 +89,7 @@ const Home = () => {
           <div className="custom-link-text">
           <h6>{userName || 'Minha conta'}</h6>
                   {userName ? (
-                    <span onClick={logout}>Fazer logout</span>
+                    <span>Fazer logout</span>
                   ) : (
                     <span>Entre ou cadastre-se</span>
                   )}

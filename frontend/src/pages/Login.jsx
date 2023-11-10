@@ -42,6 +42,7 @@ const handleSignUp = (e) =>{
 
 const handleSignIn = (e) =>{
   e.preventDefault();
+  axios.defaults.withCredentials = true
   axios.post('http://localhost:8000/login', valuesLogin)
   .then(res => {
       if(res.data.Status === "Sucesso") {
