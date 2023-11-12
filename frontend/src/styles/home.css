@@ -3,12 +3,13 @@
 * {
   padding: 0;
   margin: 0;
+  box-sizing: border-box;
+  overflow-x: hidden;
   font-family: "Open Sans", sans-serif;
 }
 
 a {
   text-decoration: none;
-  color: inherit;
 }
 
 #header {
@@ -85,7 +86,6 @@ a {
 
 #nav-bar li a {
   margin: 0 15px;
-  padding: 10px 5px 15px 5px;
   color: #828282;
   text-transform: uppercase;
   letter-spacing: 0.05rem;
@@ -94,7 +94,6 @@ a {
 
 #nav-bar li a:hover {
   color: #eb0028;
-  border-bottom: 2px solid #eb0028;
 }
 
 @keyframes buttonEffect {
@@ -157,7 +156,7 @@ a {
 }
 
 .banner img {
-  max-width: 100%;
+  width: 100%;
   height: auto;
   display: block;
   margin: 0 auto;
@@ -189,13 +188,14 @@ a {
   .product-container {
     grid-template-columns: repeat(2, 1fr);
   }
+}
 
-  @media screen and (max-width: 480px) {
-    .product-container {
-      grid-template-columns: 1fr;
-    }
+@media screen and (max-width: 480px) {
+  .product-container {
+    grid-template-columns: 1fr;
   }
 }
+
 .product-card {
   display: flex;
   flex-direction: column;

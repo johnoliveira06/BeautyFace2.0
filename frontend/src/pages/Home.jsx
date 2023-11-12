@@ -9,6 +9,8 @@ const Home = () => {
 
   const [userName, setUserName] = useState('');
 
+  const [userNameGoogle, setUserNameGoogle] = useState('');
+
   const [auth, setAuth] = useState(false);
 
   const [message, setMessage] = useState(false)
@@ -32,31 +34,31 @@ const Home = () => {
     const storedName = localStorage.getItem('nome');
 
     if (storedName) {
-      setUserName(storedName);
+      setUserNameGoogle(storedName);
     }
   }, []);
 
   const logout = () => {
-    // localStorage.clear();
-    // setUserName('');
-    // window.location.reload();
     axios.get("http://localhost:8000/logout")
     .then(res => {
       location.reload(true)
     }).catch(err => console.log(err));
   };
 
-  // const handleLogout = () => {
-  //   axios.get("http://localhost:8000/logout")
-  //   .then(res => {
-  //     location.reload(true)
-  //   }).catch(err => console.log(err));
-  // }
+  const googleLogout = () => {
+    localStorage.clear();
+    window.location.reload();
+    setUserNameGoogle('');
+  }
   
   const handleClick = () => {
     if (userName) {
       logout();
-    } else {
+    }
+    else if(userNameGoogle){
+      googleLogout();
+    } 
+    else {
       window.location.href = '/login';
     }
   };
@@ -87,8 +89,8 @@ const Home = () => {
             className="custom-link-icon"
           />
           <div className="custom-link-text">
-          <h6>{userName || 'Minha conta'}</h6>
-                  {userName ? (
+          <h6>{userNameGoogle || userName || 'Minha conta'}</h6>
+                  {userName || userNameGoogle ? (
                     <span>Fazer logout</span>
                   ) : (
                     <span>Entre ou cadastre-se</span>
