@@ -25,7 +25,12 @@ const [valuesLogin, setValuesLogin] = useState({
 
 const [valuesGoogle, setValuesGoogle] = useState('')
 
-const handleSignUp = (e) =>{
+const [isModalOpen, setIsModalOpen] = useState(false);
+const [resetEmail, setResetEmail] = useState({
+  email: ''
+});
+
+const handleSignUp = (e) => {
     e.preventDefault();
     axios.post('http://localhost:8000/register', values)
     .then(res => {
@@ -40,7 +45,7 @@ const handleSignUp = (e) =>{
     .then(err =>console.log(err));
 }
 
-const handleSignIn = (e) =>{
+const handleSignIn = (e) => {
   e.preventDefault();
   axios.defaults.withCredentials = true
   axios.post('http://localhost:8000/login', valuesLogin)
@@ -56,7 +61,7 @@ const handleSignIn = (e) =>{
   .then(err =>console.log(err));
 }
 
-const handleGoogleLogin =  () =>{
+const handleGoogleLogin =  () => {
   signInWithPopup(auth, provider).then((data)=>{
     setValuesGoogle({
       email: data.user.email,
@@ -67,6 +72,37 @@ const handleGoogleLogin =  () =>{
     navigate("/")
   })
 }
+
+const handleOpenModal = () => {
+  setIsModalOpen(true);
+};
+
+const handleCloseModal = () => {
+  setIsModalOpen(false);
+
+  setResetEmail('');
+};
+
+const handleResetPassword = (e) => {
+  e.preventDefault();
+  axios.post('http://localhost:8000/forgotPassword', resetEmail)
+  // console.log(axios)
+  .then(res => {
+    console.log(res)
+      if(res.data.Status === "Sucesso") {
+          alert("Verifique seu email")
+          location.reload()
+      }else{
+          alert(res.data.Error);
+      }
+          
+      })
+  .then(err =>console.log(err));
+  console.log('Enviar e-mail de redefinição para:', resetEmail);
+
+  setResetEmail('');
+  handleCloseModal();
+};
 
 const toggleForm = () => {
   setIsSignUp(!isSignUp);
@@ -111,7 +147,7 @@ const toggleForm = () => {
           <span>ou use seu email</span>
           <input type="email" name='email' placeholder="Email" onChange={ e => setValuesLogin({...valuesLogin, email: e.target.value})}/>
           <input type="password" name='senha' placeholder="Senha" onChange={ e => setValuesLogin({...valuesLogin, senha: e.target.value})}/>
-          <a href="#" className='forgot-password'>Esqueceu sua senha?</a>
+          <a href="#" className='forgot-password' onClick={handleOpenModal}>Esqueceu sua senha?</a>
           <button type='submit'>Entrar</button>
         </form>
       </div>
@@ -128,6 +164,30 @@ const toggleForm = () => {
         </div>
       </div>
     </div>
+    {isModalOpen && (
+        <div className="modal-container">
+          <div className='modal'>
+          <header className='modal-header'>
+            <h2 className='modal-title'>Redefinir sua senha</h2>
+            <p>Insira seu e-mail para redefinir sua senha:</p>
+          </header>
+          <form onSubmit={handleResetPassword}>
+          <main className='modal-body'>
+            <input
+              type="email"
+              placeholder="Seu e-mail"
+              className='modal-input'
+              onChange={ e => setResetEmail({...resetEmail, email: e.target.value})}
+            />
+          </main>
+          <footer className='modal-footer'>
+            <button type='button' className='btn-modal btn-modal-danger' onClick={handleCloseModal}>Fechar</button>
+            <button type='submit' className='btn-modal btn-modal-success' >Enviar email</button>
+          </footer>
+          </form>
+          </div>
+        </div>
+      )}  
     </>
   );
 }

@@ -6,8 +6,8 @@ import {
 } from "react-router-dom";
 
 import Home from "./pages/Home"
-import Register from "./pages/Register"
 import Login from "./pages/Login"
+import ResetPassword from "./pages/ResetPassword";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 
@@ -32,10 +32,10 @@ const router = createBrowserRouter([
       path: "/login",
       element: <Login/>
     },
-    // {
-    //   path: "/register",
-    //   element: <Register/>
-    // },
+    {
+      path: "/reset",
+      element: <ResetPassword/>
+    },
     ]
   },
 ]);
