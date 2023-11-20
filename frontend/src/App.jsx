@@ -10,6 +10,7 @@ import Login from "./pages/Login"
 import ResetPassword from "./pages/ResetPassword";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
+import Cart from "./pages/Cart";
 
 const Layout = () => {
   return(<>
@@ -35,6 +36,10 @@ const router = createBrowserRouter([
     {
       path: "/reset",
       element: <ResetPassword/>
+    },
+    {
+      path: "/cart",
+      element: <Cart/>
     },
     ]
   },

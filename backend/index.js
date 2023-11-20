@@ -187,6 +187,56 @@ app.post("/resetPassword/:id/:token", (req, res, next) => {
   });
 });
 
+app.post("/insertProduct", (req, res) => {
+  const { produtoId } = req.body;
+
+  console.log(produtoId);
+
+  const checkProductQuery = "SELECT * FROM products WHERE id = ?";
+  db.query(checkProductQuery, [produtoId], (error, results) => {
+    if (error) {
+      return res
+        .status(500)
+        .json({ Error: "Erro ao verificar produto na tabela produtos." });
+    }
+
+    if (results.length === 0) {
+      return res.status(404).json({ Error: "Produto não encontrado." });
+    }
+
+    const insertProductQuery =
+      "INSERT INTO cart (`produtoId`, `nome`, `preco`, `imagem`) VALUES (?, ?, ?, ?)";
+    const { nome, preco, imagem } = results[0];
+
+    db.query(
+      insertProductQuery,
+      [produtoId, nome, preco, imagem],
+      (error, results) => {
+        if (error) {
+          return res
+            .status(500)
+            .json({ Error: "Erro ao inserir produto no carrinho." });
+        }
+
+        return res
+          .status(200)
+          .json({ Success: "Produto inserido no carrinho com sucesso." });
+      }
+    );
+  });
+});
+
+app.get("/cartProducts", async (req, res) => {
+  try {
+    db.query("SELECT * FROM cart", (err, rows) => {
+      if (err) throw err;
+      res.json(rows);
+    });
+  } catch (error) {
+    console.error("Erro ao obter os registros:", error);
+  }
+});
+
 app.listen(8000, () => {
   console.log("Conectado!");
 });

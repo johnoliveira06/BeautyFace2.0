@@ -7,6 +7,8 @@ const Home = () => {
 
   const [products, setProducts] = useState([]);
 
+  const [cart, setCart] = useState([]);
+
   const [userName, setUserName] = useState('');
 
   const [userNameGoogle, setUserNameGoogle] = useState('');
@@ -70,6 +72,22 @@ const Home = () => {
       .catch(error => console.error('Erro ao buscar produtos:', error));
   }, []);
 
+  const addToCart = async (productId) => {
+    try {
+      const response = await axios.post('http://localhost:8000/insertProduct', { produtoId: productId });
+
+      if (response.status === 200) {
+        console.log(response.data.Success);
+        setCart((prevCart) => [...prevCart, productId]);
+        alert("Produto inserido ao carrinho!")
+      } else {
+        console.error(response.data.Error);
+      }
+    } catch (error) {
+      console.error('Erro ao adicionar ao carrinho:', error);
+    }
+  };
+
   return (
     <>
     <div>
@@ -81,6 +99,7 @@ const Home = () => {
           />
 		<h1 className='home-title'>Beauty Face</h1>
 		<div className="user-details">
+      <a href='/cart'>CART</a>
       <a href="#" onClick={handleClick}>
         <div className="custom-link-content">
           <img
@@ -126,7 +145,7 @@ const Home = () => {
         <h3 className="product-name">{product.nome}</h3>
         {/* <span className="original-price">$99.99</span> */}
         <span className="product-price">R$ {product.preco}</span>
-        <button className="add-to-cart-button">Adicionar ao carrinho</button>
+        <button onClick={() => addToCart(product.id)} className="add-to-cart-button">Adicionar ao carrinho</button>
       </div>
           ))}
  </div>
