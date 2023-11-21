@@ -48,6 +48,22 @@
   object-fit: cover;
 }
 
+.item-quantity{
+  overflow: hidden;
+}
+
+.item-quantity a{
+  text-decoration: none; 
+  font-size: 20px;
+  font-weight: bold;
+  padding: 10px;
+}
+
+.item-quantity input{
+  text-align: center; 
+  width: 50px; 
+}
+
 .item-details,
 .item-quantity,
 .item-price {

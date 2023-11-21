@@ -15,7 +15,7 @@ app.use(bodyParser.json());
 app.use(
   cors({
     origin: ["http://localhost:5173"],
-    methods: ["POST", "GET"],
+    methods: ["POST", "GET", "DELETE"],
     credentials: true,
   })
 );
@@ -188,7 +188,7 @@ app.post("/resetPassword/:id/:token", (req, res, next) => {
 });
 
 app.post("/insertProduct", (req, res) => {
-  const { produtoId } = req.body;
+  const { produtoId, quantidade } = req.body;
 
   console.log(produtoId);
 
@@ -205,12 +205,12 @@ app.post("/insertProduct", (req, res) => {
     }
 
     const insertProductQuery =
-      "INSERT INTO cart (`produtoId`, `nome`, `preco`, `imagem`) VALUES (?, ?, ?, ?)";
+      "INSERT INTO cart (`produtoId`, `quantidade`, `nome`, `preco`, `imagem`) VALUES (?, ?, ?, ?, ?)";
     const { nome, preco, imagem } = results[0];
 
     db.query(
       insertProductQuery,
-      [produtoId, nome, preco, imagem],
+      [produtoId, quantidade, nome, preco, imagem],
       (error, results) => {
         if (error) {
           return res
@@ -234,6 +234,29 @@ app.get("/cartProducts", async (req, res) => {
     });
   } catch (error) {
     console.error("Erro ao obter os registros:", error);
+  }
+});
+
+app.delete('/removeProduct/:produtoId', (req, res) => {
+  try {
+    const produtoId = parseInt(req.params.produtoId);
+    console.log('ID do produto a ser removido:', produtoId);
+
+    const query = `DELETE FROM cart WHERE id = ?`; 
+
+    db.query(query, [produtoId], (error, results) => {
+      if (error) {
+        console.error('Erro ao remover produto do banco de dados:', error);
+        res.status(500).send('Erro interno no servidor.');
+      } else if (results.affectedRows === 1) {
+        res.status(200).send('Produto removido com sucesso.');
+      } else {
+        res.status(404).send('Produto não encontrado no carrinho.');
+      }
+    });
+  } catch (error) {
+    console.error('Erro interno:', error);
+    res.status(500).send('Erro interno no servidor.');
   }
 });
 

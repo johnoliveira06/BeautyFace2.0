@@ -74,7 +74,7 @@ const Home = () => {
 
   const addToCart = async (productId) => {
     try {
-      const response = await axios.post('http://localhost:8000/insertProduct', { produtoId: productId });
+      const response = await axios.post('http://localhost:8000/insertProduct', { produtoId: productId, quantidade: 1 });
 
       if (response.status === 200) {
         console.log(response.data.Success);
