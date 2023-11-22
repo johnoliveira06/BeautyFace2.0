@@ -5,8 +5,9 @@ import cors from "cors";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import cookieParser from "cookie-parser";
-
+import MercadoPago from "MercadoPago";
 const salt = await bcrypt.genSalt(10);
+import "dotenv/config";
 
 const app = express();
 
@@ -15,11 +16,17 @@ app.use(bodyParser.json());
 app.use(
   cors({
     origin: ["http://localhost:5173"],
-    methods: ["POST", "GET", "DELETE"],
+    methods: ["POST", "GET", "DELETE", "PUT"],
     credentials: true,
   })
 );
 app.use(cookieParser());
+
+const client = new MercadoPago.MercadoPagoConfig({
+  accessToken: process.env.MERCADO_PAGO_ACCESS_TOKEN,
+});
+
+const preference = new MercadoPago.Preference(client);
 
 //MySQL
 const db = mysql.createConnection({
@@ -82,7 +89,8 @@ app.post("/login", (req, res) => {
           if (err) return res.json("Erro ao comparar senha");
           if (response) {
             const name = data[0].nome;
-            const token = jwt.sign({ name }, "jwt-secret-key", {
+            const id = data[0].id;
+            const token = jwt.sign({ id, name }, "jwt-secret-key", {
               expiresIn: "1d",
             });
             res.cookie("token", token);
@@ -188,9 +196,10 @@ app.post("/resetPassword/:id/:token", (req, res, next) => {
 });
 
 app.post("/insertProduct", (req, res) => {
-  const { produtoId, quantidade } = req.body;
+  const { userId, produtoId, quantidade } = req.body;
 
   console.log(produtoId);
+  console.log(userId);
 
   const checkProductQuery = "SELECT * FROM products WHERE id = ?";
   db.query(checkProductQuery, [produtoId], (error, results) => {
@@ -205,12 +214,12 @@ app.post("/insertProduct", (req, res) => {
     }
 
     const insertProductQuery =
-      "INSERT INTO cart (`produtoId`, `quantidade`, `nome`, `preco`, `imagem`) VALUES (?, ?, ?, ?, ?)";
+      "INSERT INTO cart (`userId`, `produtoId`, `quantidade`, `nome`, `preco`, `imagem`) VALUES (?, ?, ?, ?, ?, ?)";
     const { nome, preco, imagem } = results[0];
 
     db.query(
       insertProductQuery,
-      [produtoId, quantidade, nome, preco, imagem],
+      [userId, produtoId, quantidade, nome, preco, imagem],
       (error, results) => {
         if (error) {
           return res
@@ -226,38 +235,90 @@ app.post("/insertProduct", (req, res) => {
   });
 });
 
-app.get("/cartProducts", async (req, res) => {
+app.get("/cartProducts/:userId", async (req, res) => {
+  const userId = req.params.userId;
+
   try {
-    db.query("SELECT * FROM cart", (err, rows) => {
-      if (err) throw err;
+    db.query("SELECT * FROM cart WHERE userId = ?", [userId], (err, rows) => {
+      if (err) {
+        console.error("Erro ao obter os registros:", err);
+        res.status(500).json({ error: "Erro interno do servidor" });
+        return;
+      }
+
       res.json(rows);
     });
   } catch (error) {
     console.error("Erro ao obter os registros:", error);
+    res.status(500).json({ error: "Erro interno do servidor" });
   }
 });
 
-app.delete('/removeProduct/:produtoId', (req, res) => {
+app.delete("/removeProduct/:produtoId", (req, res) => {
   try {
     const produtoId = parseInt(req.params.produtoId);
-    console.log('ID do produto a ser removido:', produtoId);
 
-    const query = `DELETE FROM cart WHERE id = ?`; 
+    const query = `DELETE FROM cart WHERE id = ?`;
 
     db.query(query, [produtoId], (error, results) => {
       if (error) {
-        console.error('Erro ao remover produto do banco de dados:', error);
-        res.status(500).send('Erro interno no servidor.');
+        console.error("Erro ao remover produto do banco de dados:", error);
+        res.status(500).send("Erro interno no servidor.");
       } else if (results.affectedRows === 1) {
-        res.status(200).send('Produto removido com sucesso.');
+        res.status(200).send("Produto removido com sucesso.");
       } else {
-        res.status(404).send('Produto não encontrado no carrinho.');
+        res.status(404).send("Produto não encontrado no carrinho.");
       }
     });
   } catch (error) {
-    console.error('Erro interno:', error);
-    res.status(500).send('Erro interno no servidor.');
+    console.error("Erro interno:", error);
+    res.status(500).send("Erro interno no servidor.");
   }
+});
+
+app.post("/checkout", (req, res) => {
+  db.query("SELECT * FROM cart", (err, rows) => {
+    if (err) {
+      console.error("Erro ao obter os registros:", err);
+      return res.status(500).send("Erro ao obter os registros");
+    }
+
+    if (!rows || rows.length === 0) {
+      return res.status(400).send("Carrinho vazio");
+    }
+
+    const items = rows.map((produto) => ({
+      title: produto.nome,
+      quantity: produto.quantidade || 1,
+      currency_id: "BRL",
+      unit_price: parseFloat(produto.preco),
+    }));
+
+    let body = {
+      items: items,
+      payer: {
+        email: "john@gmail.com",
+      },
+      payment_methods: {
+        installments: 3,
+      },
+      back_urls: {
+        success: "http://localhost:5173/",
+      },
+      auto_return: "approved",
+    };
+
+    preference
+      .create({ body })
+      .then(function (data) {
+        res.send(JSON.stringify(data.init_point));
+        console.log(data);
+      })
+      .catch(function (error) {
+        console.error(error);
+        res.status(500).send("Erro ao realizar pagamento");
+      });
+  });
 });
 
 app.listen(8000, () => {

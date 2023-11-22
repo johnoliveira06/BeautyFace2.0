@@ -1,6 +1,7 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
 import axios from "axios"
+import { jwtDecode } from "jwt-decode";
 import "../styles/home.css"
 
 const Home = () => {
@@ -34,17 +35,29 @@ const Home = () => {
 
   useEffect(() => {
     const storedName = localStorage.getItem('nome');
-
+  
     if (storedName) {
       setUserNameGoogle(storedName);
+    }
+  
+    const token = document.cookie.split('; ').find(row => row.startsWith('token='));
+  
+    if (token) {
+
+      const decodedToken = jwtDecode(token.split('=')[1]);
+      setUserName(decodedToken.name);
     }
   }, []);
 
   const logout = () => {
     axios.get("http://localhost:8000/logout")
-    .then(res => {
-      location.reload(true)
-    }).catch(err => console.log(err));
+      .then(res => {
+        document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/;';
+        
+        localStorage.removeItem('nome');
+        location.reload(true);
+      })
+      .catch(err => console.log(err));
   };
 
   const googleLogout = () => {
@@ -74,12 +87,33 @@ const Home = () => {
 
   const addToCart = async (productId) => {
     try {
-      const response = await axios.post('http://localhost:8000/insertProduct', { produtoId: productId, quantidade: 1 });
+      let userId = null;
+  
+      if (auth || userName || userNameGoogle) {
+        const token = document.cookie.split('; ').find(row => row.startsWith('token='));
+        if (token) {
+          const decodedToken = jwtDecode(token.split('=')[1]);
+          console.log('oii', decodedToken)
+          userId = decodedToken.id;
+        }
+      }
 
+      if (!userId) {
+        window.location.href = '/login';
+        return;
+      }
+  
+
+      const response = await axios.post('http://localhost:8000/insertProduct', {
+        userId,
+        produtoId: productId,
+        quantidade: 1
+      });
+  
       if (response.status === 200) {
         console.log(response.data.Success);
         setCart((prevCart) => [...prevCart, productId]);
-        alert("Produto inserido ao carrinho!")
+        alert("Produto inserido ao carrinho!");
       } else {
         console.error(response.data.Error);
       }
@@ -99,7 +133,14 @@ const Home = () => {
           />
 		<h1 className='home-title'>Beauty Face</h1>
 		<div className="user-details">
-      <a href='/cart'>CART</a>
+      <div className="nav-links">
+      <a href='/cart'>
+      <img
+            src="../assets/icons/cart2.svg"
+            alt="Carrinho"
+            className="custom-link-icon"
+          />
+      </a>
       <a href="#" onClick={handleClick}>
         <div className="custom-link-content">
           <img
@@ -117,6 +158,7 @@ const Home = () => {
           </div>
         </div>
       </a>
+      </div>
 		</div>
 		<nav id="nav-bar">
 			<ul>

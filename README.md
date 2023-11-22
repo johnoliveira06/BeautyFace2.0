@@ -62,6 +62,14 @@ Este projeto consiste em uma nova versão do projeto BeautyFace, desenvolvido na
   VITE_FIREBASE_MEASUREMENT_ID = ""
   ```
 
+- **Crie um arquivo `.env` no diretório `backend` para armazenar suas chaves de API do Mercado Pago (Necessário para realizar pagamentos):**
+
+  ```shell
+  # Evite modificar os nomes das variáveis, pois isso pode resultar em erros.
+
+  MERCADO_PAGO_ACCESS_TOKEN = ""
+  ```
+
 - **Inicie o backend:**
   ```shell
   npm start

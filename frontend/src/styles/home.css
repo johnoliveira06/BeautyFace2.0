@@ -50,7 +50,22 @@ a {
   }
 }
 
-.user-details:hover {
+.user-details {
+  display: flex;
+  align-items: center;
+}
+
+.nav-links {
+  display: flex;
+  gap: 20px;
+}
+
+.custom-link-content {
+  display: flex;
+  align-items: center;
+}
+
+.custom-link-content:hover {
   color: #101920;
   border-bottom: 2px solid #101920;
   cursor: pointer;

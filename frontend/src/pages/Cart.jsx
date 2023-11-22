@@ -1,17 +1,31 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
 import axios from "axios"
+import { jwtDecode } from "jwt-decode";
 import "../styles/cart.css"
 
 const Cart = () => {
 
   const [products, setProducts] = useState([]);
 
+  const getTokenFromCookies = () => {
+    const token = document.cookie.split('; ').find(row => row.startsWith('token='));
+    if (token) {
+      const decodedToken = jwtDecode(token.split('=')[1]);
+      return decodedToken.id;
+    }
+    return null;
+  };
+
   useEffect(() => {
-    fetch('http://localhost:8000/cartProducts')
+    const userId = getTokenFromCookies();
+
+    if(userId){
+    fetch(`http://localhost:8000/cartProducts/${userId}`)
       .then(response => response.json())
       .then(data => setProducts(data))
       .catch(error => console.error('Erro ao buscar produtos:', error));
+    }
   }, []);
 
   const calculateSubtotal = () => {
@@ -20,7 +34,7 @@ const Cart = () => {
 
   const calculateTotal = () => {
   const subtotal = products.reduce((total, product) => total + (parseFloat(product.preco) * (product.quantidade || 0)), 0);
-  const shippingCost = 30.00; // Custo fixo de frete
+  const shippingCost = 30.00;
   return (subtotal + shippingCost).toFixed(2);
 };
 
@@ -56,6 +70,26 @@ const removeProduct = async (index) => {
     }
   } catch (error) {
     console.error('Erro na solicitação de remoção do produto:', error);
+  }
+};
+
+const handleCheckout = async () => {
+  try {
+    const items = products.map((product) => ({
+      title: product.nome,
+      quantity: product.quantidade || 1,
+      currency_id: 'BRL',
+      unit_price: parseFloat(product.preco),
+    }));
+
+    const response = await axios.post('http://localhost:8000/checkout', { items });
+
+    const paymentUrl = response.data;
+
+
+    window.location.href = paymentUrl;
+  } catch (error) {
+    console.error('Erro ao iniciar o processo de checkout:', error);
   }
 };
 
@@ -114,7 +148,7 @@ const removeProduct = async (index) => {
             <p id="total">R$ {calculateTotal()}</p>
           </div>
         </div>
-        <a href="#"><button className="btn-buy-now">Comprar</button></a>
+        <a href="#" onClick={handleCheckout} ><button className="btn-buy-now">Comprar</button></a>
       </div>
   </div>
 </main>

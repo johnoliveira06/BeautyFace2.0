@@ -15,11 +15,14 @@ CREATE TABLE IF NOT EXISTS `adresses`(
 );
 CREATE TABLE IF NOT EXISTS `cart`(
     `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `userId` INT NOT NULL,
     `produtoId` INT NOT NULL,
+    `quantidade` INT NOT NULL,
     `nome` VARCHAR(255) NOT NULL,
     `preco` DECIMAL(8, 2) NOT NULL,
     `imagem` VARCHAR(255) NOT NULL,
-    CONSTRAINT produtoId FOREIGN KEY (produtoId) REFERENCES products (id)
+    CONSTRAINT produtoId FOREIGN KEY (produtoId) REFERENCES products (id),
+    CONSTRAINT userId FOREIGN KEY (userId) REFERENCES users (id)
 );
 CREATE TABLE IF NOT EXISTS `users`(
     `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
