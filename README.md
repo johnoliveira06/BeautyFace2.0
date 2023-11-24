@@ -6,6 +6,18 @@ Este projeto consiste em uma nova versão do projeto BeautyFace, desenvolvido na
 
 ---
 
+### Modelo lógico do banco de dados
+
+![Modelo lógico do banco de dados](documents/Modelo_l%C3%B3gico_do_banco_de_dados.png)
+
+---
+
+### Diagrama de componentes
+
+![Diagrama de componentes](documents/Diagrama_de_componentes.png)
+
+---
+
 ### Acesse a documentação da API [aqui](https://app.swaggerhub.com/apis-docs/JONATHANFERNANDEZ/ProjectWeb/0.1#/)
 
 ---
