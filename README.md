@@ -6,6 +6,10 @@ Este projeto consiste em uma nova versão do projeto BeautyFace, desenvolvido na
 
 ---
 
+### Acesse a documentação da API [aqui](https://app.swaggerhub.com/apis-docs/JONATHANFERNANDEZ/ProjectWeb/0.1#/)
+
+---
+
 ### 🎲 Rodando o projeto
 
 - Para rodar o projeto é necessário:

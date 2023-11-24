@@ -2,6 +2,18 @@ CREATE DATABASE `beautyface`;
 
 USE `beautyface`;
 
+CREATE TABLE IF NOT EXISTS `users`(
+    `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `nome` VARCHAR(255) NOT NULL,
+    `email` VARCHAR(255) NOT NULL,
+    `senha` VARCHAR(255) NOT NULL
+);
+CREATE TABLE IF NOT EXISTS `products`(
+    `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `nome` VARCHAR(255) NOT NULL,
+    `preco` DECIMAL(8, 2) NOT NULL,
+    `imagem` VARCHAR(255) NOT NULL
+);
 CREATE TABLE IF NOT EXISTS `adresses`(
     `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `userId` INT NOT NULL,
@@ -22,26 +34,14 @@ CREATE TABLE IF NOT EXISTS `cart`(
     `preco` DECIMAL(8, 2) NOT NULL,
     `imagem` VARCHAR(255) NOT NULL,
     CONSTRAINT produtoId FOREIGN KEY (produtoId) REFERENCES products (id),
-    CONSTRAINT userId FOREIGN KEY (userId) REFERENCES users (id)
-);
-CREATE TABLE IF NOT EXISTS `users`(
-    `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    `nome` VARCHAR(255) NOT NULL,
-    `email` VARCHAR(255) NOT NULL,
-    `senha` VARCHAR(255) NOT NULL
-);
-CREATE TABLE IF NOT EXISTS `products`(
-    `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    `nome` VARCHAR(255) NOT NULL,
-    `preco` DECIMAL(8, 2) NOT NULL,
-    `imagem` VARCHAR(255) NOT NULL
+    CONSTRAINT userId_2 FOREIGN KEY (userId) REFERENCES users (id)
 );
 CREATE TABLE IF NOT EXISTS `orders`(
     `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `userId` INT NOT NULL,
     `total` DECIMAL(8, 2) NOT NULL,
     `data` DATE NOT NULL,
-    CONSTRAINT userId FOREIGN KEY (userId) REFERENCES users (id)
+    CONSTRAINT userId_3 FOREIGN KEY (userId) REFERENCES users (id)
 );
 CREATE TABLE IF NOT EXISTS `order_details`(
     `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -50,7 +50,7 @@ CREATE TABLE IF NOT EXISTS `order_details`(
     `quantidade` INT NOT NULL,
     `valorUnitario` DECIMAL(8, 2) NOT NULL,
     CONSTRAINT pedidoId FOREIGN KEY (pedidoId) REFERENCES orders (id),
-    CONSTRAINT produtoId FOREIGN KEY (produtoId) REFERENCES products (id)
+    CONSTRAINT produtoId_2 FOREIGN KEY (produtoId) REFERENCES products (id)
 );
 
 -- INSERÇÃO DE PRODUTOS
