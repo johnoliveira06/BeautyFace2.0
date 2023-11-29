@@ -46,6 +46,7 @@ const verifyUser = (req, res, next) => {
       if (err) {
         return res.status(403).json({ Error: "Token errado" });
       } else {
+        req.email = decoded.email;
         req.name = decoded.name;
         next();
       }
@@ -90,8 +91,9 @@ app.post("/login", (req, res) => {
           if (err) return res.status(500).json("Erro ao comparar senha");
           if (response) {
             const name = data[0].nome;
+            const email = data[0].email;
             const id = data[0].id;
-            const token = jwt.sign({ id, name }, "jwt-secret-key", {
+            const token = jwt.sign({ id, name, email }, "jwt-secret-key", {
               expiresIn: "1d",
             });
             res.cookie("token", token);
@@ -108,7 +110,9 @@ app.post("/login", (req, res) => {
 });
 
 app.get("/", verifyUser, (req, res) => {
-  return res.status(200).json({ Status: "Sucesso", name: req.name });
+  return res
+    .status(200)
+    .json({ Status: "Sucesso", name: req.name, email: req.email });
 });
 
 app.get("/logout", (req, res) => {
@@ -279,7 +283,10 @@ app.delete("/removeProduct/:produtoId", (req, res) => {
   }
 });
 
-app.post("/checkout", (req, res) => {
+app.post("/checkout", verifyUser, (req, res) => {
+  const userEmail = req.email; // Agora userEmail contém o e-mail do usuário logado
+  console.log("E-mail do usuário logado:", userEmail);
+
   db.query("SELECT * FROM cart", (err, rows) => {
     if (err) {
       console.error("Erro ao obter os registros:", err);
@@ -300,7 +307,7 @@ app.post("/checkout", (req, res) => {
     let body = {
       items: items,
       payer: {
-        email: "john@gmail.com",
+        email: userEmail,
       },
       payment_methods: {
         installments: 3,

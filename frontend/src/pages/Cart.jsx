@@ -82,7 +82,7 @@ const handleCheckout = async () => {
       unit_price: parseFloat(product.preco),
     }));
 
-    const response = await axios.post('http://localhost:8000/checkout', { items });
+    const response = await axios.post('http://localhost:8000/checkout', { items }, { withCredentials: true });
 
     const paymentUrl = response.data;
 
