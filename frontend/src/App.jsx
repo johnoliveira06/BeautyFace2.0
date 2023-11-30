@@ -9,8 +9,9 @@ import Home from "./pages/Home"
 import Login from "./pages/Login"
 import ResetPassword from "./pages/ResetPassword";
 import Navbar from "./components/Navbar";
-import Footer from "./components/Footer";
+// import Footer from "./components/Footer";
 import Cart from "./pages/Cart";
+import Orders from "./pages/Orders";
 
 const Layout = () => {
   return(<>
@@ -41,6 +42,10 @@ const router = createBrowserRouter([
       path: "/cart",
       element: <Cart/>
     },
+    {
+      path: "/orders",
+      element: <Orders/>
+    }
     ]
   },
 ]);

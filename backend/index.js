@@ -5,7 +5,7 @@ import cors from "cors";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import cookieParser from "cookie-parser";
-import MercadoPago from "MercadoPago";
+import MercadoPago from "mercadopago";
 const salt = await bcrypt.genSalt(10);
 import "dotenv/config";
 
@@ -46,6 +46,7 @@ const verifyUser = (req, res, next) => {
       if (err) {
         return res.status(403).json({ Error: "Token errado" });
       } else {
+        req.id = decoded.id;
         req.email = decoded.email;
         req.name = decoded.name;
         next();
@@ -112,7 +113,7 @@ app.post("/login", (req, res) => {
 app.get("/", verifyUser, (req, res) => {
   return res
     .status(200)
-    .json({ Status: "Sucesso", name: req.name, email: req.email });
+    .json({ Status: "Sucesso", id: req.id, name: req.name, email: req.email });
 });
 
 app.get("/logout", (req, res) => {
@@ -284,50 +285,137 @@ app.delete("/removeProduct/:produtoId", (req, res) => {
 });
 
 app.post("/checkout", verifyUser, (req, res) => {
-  const userEmail = req.email; // Agora userEmail contém o e-mail do usuário logado
-  console.log("E-mail do usuário logado:", userEmail);
+  const userId = req.id;
+  console.log("ID do usuário logado:", userId);
 
-  db.query("SELECT * FROM cart", (err, rows) => {
+  db.query(
+    "SELECT * FROM cart WHERE userId = ?",
+    [userId],
+    (err, cartProducts) => {
+      if (err) {
+        console.error("Erro ao selecionar carrinho:", err);
+        return res.status(500).json({ error: "Erro no servidor interno" });
+      }
+
+      if (!Array.isArray(cartProducts) || cartProducts.length === 0) {
+        return res.status(400).json({ error: "Carrinho vazio" });
+      }
+
+      const totalPedido = cartProducts.reduce(
+        (total, product) => total + product.quantidade * product.preco,
+        0
+      );
+
+      db.query(
+        "INSERT INTO orders (userId, total, data) VALUES (?, ?, NOW())",
+        [userId, totalPedido],
+        (err, pedidoResult) => {
+          if (err) {
+            console.error("Erro ao inserir pedido:", err);
+            return res.status(500).json({ error: "Erro no servidor interno" });
+          }
+
+          const pedidoId = pedidoResult.insertId;
+
+          const insertDetailsQueries = cartProducts.map((product) =>
+            db.query(
+              "INSERT INTO order_details (pedidoId, produtoId, quantidade, valorUnitario) VALUES (?, ?, ?, ?)",
+              [pedidoId, product.produtoId, product.quantidade, product.preco]
+            )
+          );
+
+          Promise.all(insertDetailsQueries)
+            .then(() => {
+              db.query("DELETE FROM cart WHERE userId = ?", [userId], (err) => {
+                if (err) {
+                  console.error("Erro ao deletar produtos:", err);
+                  return res
+                    .status(500)
+                    .json({ error: "Erro no servidor interno" });
+                }
+
+                const userEmail = req.email;
+                console.log("Email do usuário logado:", userEmail);
+
+                const items = cartProducts.map((produto) => ({
+                  title: produto.nome,
+                  quantity: produto.quantidade || 1,
+                  currency_id: "BRL",
+                  unit_price: parseFloat(produto.preco),
+                }));
+
+                let body = {
+                  items: items,
+                  payer: {
+                    email: userEmail,
+                  },
+                  payment_methods: {
+                    installments: 3,
+                  },
+                  back_urls: {
+                    success: "http://localhost:5173/orders",
+                    failure: "http://localhost:5173/cart",
+                  },
+                  auto_return: "approved",
+                };
+                console.log("Payment Body:", body);
+                preference
+                  .create({ body })
+                  .then(function (data) {
+                    res.send(JSON.stringify(data.init_point));
+                    console.log(data);
+                  })
+                  .catch(function (error) {
+                    console.error(error);
+                    res.status(500).send("Erro ao realizar pagamento");
+                  });
+              });
+            })
+            .catch((error) => {
+              console.error("Erro inserindo detalhes do produto:", error);
+              res.status(500).json({ error: "Erro no servidor" });
+            });
+        }
+      );
+    }
+  );
+});
+
+// app.get("/orders", verifyUser, (req, res) => {
+//   const userId = req.id;
+//   console.log(userId);
+
+//   const sql = "SELECT * FROM orders WHERE userId = ?";
+
+//   db.query(sql, [userId], (err, results) => {
+//     if (err) {
+//       return res
+//         .status(500)
+//         .json({ error: "Erro ao obter os pedidos do banco de dados." });
+//     }
+//     res.json(results);
+//   });
+// });
+
+app.get("/orders", verifyUser, (req, res) => {
+  const userId = req.id;
+
+  const sql =
+    "SELECT o.id as orderId, o.data, od.produtoId, od.quantidade, o.total, od.valorUnitario, p.nome as nomeProduto " +
+    "FROM orders o " +
+    "JOIN order_details od ON o.id = od.pedidoId " +
+    "JOIN products p ON od.produtoId = p.id " +
+    "WHERE o.userId = ?";
+
+  db.query(sql, [userId], (err, results) => {
     if (err) {
-      console.error("Erro ao obter os registros:", err);
-      return res.status(500).send("Erro ao obter os registros");
-    }
-
-    if (!rows || rows.length === 0) {
-      return res.status(400).send("Carrinho vazio");
-    }
-
-    const items = rows.map((produto) => ({
-      title: produto.nome,
-      quantity: produto.quantidade || 1,
-      currency_id: "BRL",
-      unit_price: parseFloat(produto.preco),
-    }));
-
-    let body = {
-      items: items,
-      payer: {
-        email: userEmail,
-      },
-      payment_methods: {
-        installments: 3,
-      },
-      back_urls: {
-        success: "http://localhost:5173/",
-      },
-      auto_return: "approved",
-    };
-
-    preference
-      .create({ body })
-      .then(function (data) {
-        res.send(JSON.stringify(data.init_point));
-        console.log(data);
-      })
-      .catch(function (error) {
-        console.error(error);
-        res.status(500).send("Erro ao realizar pagamento");
+      console.error("Erro ao executar a consulta SQL:", err);
+      return res.status(500).json({
+        error:
+          "Erro interno do servidor ao obter os pedidos do banco de dados.",
       });
+    }
+    res.json(results);
   });
 });
 

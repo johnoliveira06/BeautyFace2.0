@@ -134,6 +134,13 @@ const Home = () => {
 		<h1 className='home-title'>Beauty Face</h1>
 		<div className="user-details">
       <div className="nav-links">
+      <a href='/orders'>
+      <img
+            src="../assets/icons/order.svg"
+            alt="Pedidos"
+            className="custom-link-icon"
+          />
+      </a>
       <a href='/cart'>
       <img
             src="../assets/icons/cart2.svg"

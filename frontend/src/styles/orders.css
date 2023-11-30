@@ -1,0 +1,19 @@
+.orders-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.order-group {
+  border: 1px solid #ddd;
+  margin-bottom: 20px;
+  padding: 10px;
+}
+
+.order-info {
+  font-weight: bold;
+}
+
+.order-item {
+  margin-bottom: 10px;
+}
