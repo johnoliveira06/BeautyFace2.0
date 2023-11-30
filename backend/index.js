@@ -381,22 +381,6 @@ app.post("/checkout", verifyUser, (req, res) => {
   );
 });
 
-// app.get("/orders", verifyUser, (req, res) => {
-//   const userId = req.id;
-//   console.log(userId);
-
-//   const sql = "SELECT * FROM orders WHERE userId = ?";
-
-//   db.query(sql, [userId], (err, results) => {
-//     if (err) {
-//       return res
-//         .status(500)
-//         .json({ error: "Erro ao obter os pedidos do banco de dados." });
-//     }
-//     res.json(results);
-//   });
-// });
-
 app.get("/orders", verifyUser, (req, res) => {
   const userId = req.id;
 

@@ -54,7 +54,7 @@ const Orders = () => {
                 <p>Quantidade: {order.quantidade}</p>
                 <p>Nome do produto: {order.nomeProduto}</p> 
                 <p>Valor unitário: {order.valorUnitario}</p>
-                {orderIndex !== orderGroup.length - 1 && <hr />} {/* Adiciona hr se não for o último item */}
+                {orderIndex !== orderGroup.length - 1 && <hr />}
               </li>
             ))}
           </ul>
